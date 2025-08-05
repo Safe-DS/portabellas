@@ -1,0 +1,34 @@
+# IntelliJ
+.idea/
+*.iml
+
+# VSCode Settings
+.vscode/
+
+# Compilation/build outputs
+build/
+dist/
+out/
+
+# Python binaries
+*.egg-info/
+__pycache__/
+*.pyc
+
+# Python environment
+.venv/
+venv/
+.python-version
+
+# Pytest outputs
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ruff
+.ruff_cache/
+
+# Other
+.DS_Store
+*.log
