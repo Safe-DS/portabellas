@@ -73,7 +73,7 @@ class Column[T](Sequence[T]):
     def __contains__(self, value: object) -> bool:
         try:
             return self._series.__contains__(value)
-        except pl.InvalidOperationError:
+        except pl.exceptions.InvalidOperationError:
             # Happens if types are incompatible
             return False
 
