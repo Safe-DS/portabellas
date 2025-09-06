@@ -73,6 +73,8 @@ class Column[T]:
     def __iter__(self) -> Iterator[T]:
         return self._series.__iter__()
 
+    def __len__(self) -> int:
+        return self.row_count
 
     def __repr__(self) -> str:
         return self.to_table().__repr__()
