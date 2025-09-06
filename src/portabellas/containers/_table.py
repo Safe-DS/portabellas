@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
+from portabellas._config import get_polars_config
 from portabellas._utils import safely_collect_lazy_frame
 from portabellas._validation import check_row_counts_are_equal
 from portabellas.io import TableReader, TableWriter
@@ -75,6 +76,14 @@ class Table:
         # Fields
         self.__data_frame_cache: pl.DataFrame | None = None  # Scramble the name to prevent access from outside
         self._lazy_frame: pl.LazyFrame = pl.LazyFrame(data, strict=False)
+
+    def __repr__(self) -> str:
+        with get_polars_config():
+            return self._data_frame.__repr__()
+
+    def __str__(self) -> str:
+        with get_polars_config():
+            return self._data_frame.__str__()
 
     # ------------------------------------------------------------------------------------------------------------------
     # Properties
