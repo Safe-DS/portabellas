@@ -105,6 +105,24 @@ class Table:
         return TablePlotter(self)
 
     @property
+    def row_count(self) -> int:
+        """
+        The number of rows.
+
+        **Notes:**
+
+        - This operation loads the full data into memory, which can be expensive.
+
+        Examples
+        --------
+        >>> from portabellas import Table
+        >>> table = Table({"a": [1, 2, 3], "b": [4, 5, 6]})
+        >>> table.row_count
+        3
+        """
+        return self._data_frame.height
+
+    @property
     def write(self) -> TableWriter:
         """Write this table to various targets."""
         # TODO: add examples  # noqa: FIX002
