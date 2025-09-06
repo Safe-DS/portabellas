@@ -56,6 +56,7 @@ line-length = 120
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "COM812", # Conflicts with formatter
     "D100",
     "D104",
     "TD002",
