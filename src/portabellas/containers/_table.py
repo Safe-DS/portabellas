@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
+from portabellas._utils import safely_collect_lazy_frame
 from portabellas._validation import check_row_counts_are_equal
 from portabellas.io import TableReader, TableWriter
 from portabellas.plotting import TablePlotter
@@ -49,6 +50,20 @@ class Table:
     """Create a new table by reading from various sources."""
     # TODO: add examples  # noqa: FIX002
 
+    @staticmethod
+    def _from_polars_data_frame(data: pl.DataFrame) -> Table:
+        result = object.__new__(Table)
+        result.__data_frame_cache = data
+        result._lazy_frame = data.lazy()
+        return result
+
+    @staticmethod
+    def _from_polars_lazy_frame(data: pl.LazyFrame) -> Table:
+        result = object.__new__(Table)
+        result.__data_frame_cache = None
+        result._lazy_frame = data
+        return result
+
     # ------------------------------------------------------------------------------------------------------------------
     # Dunder methods
     # ------------------------------------------------------------------------------------------------------------------
@@ -61,6 +76,18 @@ class Table:
         self.__data_frame_cache: pl.DataFrame | None = None  # Scramble the name to prevent access from outside
         self._lazy_frame: pl.LazyFrame = pl.LazyFrame(data, strict=False)
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # Properties
+    # ------------------------------------------------------------------------------------------------------------------
+
+    @property
+    def _data_frame(self) -> pl.DataFrame:
+        if self.__data_frame_cache is None:
+            self.__data_frame_cache = safely_collect_lazy_frame(self._lazy_frame)
+            # Break chain of polars objects
+            self._lazy_frame = self.__data_frame_cache.lazy()
+
+        return self.__data_frame_cache
 
     @property
     def plot(self) -> TablePlotter:
