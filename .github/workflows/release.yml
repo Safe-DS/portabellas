@@ -5,12 +5,12 @@ on:
 
 permissions:
     contents: write
+    id-token: write
     issues: write
     pull-requests: write
 
 jobs:
   build:
-    environment: "release"
     strategy:
       matrix:
         platform:
