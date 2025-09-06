@@ -2,19 +2,22 @@
 
 from __future__ import annotations
 
-
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from portabellas.exceptions import LengthMismatchError
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
     from collections.abc import Sequence
+
+    from portabellas import Column, Table
 
 
 def check_row_counts_are_equal(
-    data: Mapping[str, Sequence[Any]],
+    data: Sequence[Column | Table] | Mapping[str, Sequence[Any]],
+    *,
+    ignore_entries_without_rows: bool = False,
 ) -> None:
     """
     Check whether all columns or tables have the same row count and raise an error if they do not.
@@ -35,7 +38,7 @@ def check_row_counts_are_equal(
     if len(data) < 2:
         return
 
-    items = _items(data)
+    items = _items(data, ignore_entries_without_rows=ignore_entries_without_rows)
     mismatched_items = _mismatched_items(items)
     if mismatched_items:
         message = _build_error_message(items[0], mismatched_items)
@@ -43,9 +46,24 @@ def check_row_counts_are_equal(
 
 
 def _items(
-    data: Mapping[str, Sequence[Any]]
+    data: Sequence[Column | Table] | Mapping[str, Sequence[Any]],
+    *,
+    ignore_entries_without_rows: bool = False,
 ) -> list[_Item]:
-    return [_Item(f"Column '{name}'", len(column)) for name, column in data.items()]
+    from portabellas import Column, Table  # noqa: PLC0415
+
+    if isinstance(data, Mapping):
+        return [_Item(f"Column '{name}'", len(column)) for name, column in data.items()]
+
+    result = []
+
+    for i, entry in enumerate(data):
+        if isinstance(entry, Column) and (not ignore_entries_without_rows or entry.row_count > 0):
+            result.append(_Item(f"Column '{entry.name}'", entry.row_count))
+        elif isinstance(entry, Table) and (not ignore_entries_without_rows or entry.row_count > 0):
+            result.append(_Item(f"Table {i}", entry.row_count))
+
+    return result
 
 
 def _mismatched_items(items: list[_Item]) -> list[_Item]:
