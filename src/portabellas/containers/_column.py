@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from portabellas._utils import safely_collect_lazy_frame
+from portabellas._validation import check_indices
 
 if TYPE_CHECKING:
     from portabellas import Table
@@ -13,7 +14,7 @@ import polars as pl
 from portabellas.plotting import ColumnPlotter
 
 
-class Column[T]:
+class Column[T](Sequence[T]):
     """
     A named, one-dimensional collection of homogeneous values.
 
@@ -76,6 +77,20 @@ class Column[T]:
             # Happens if types are incompatible
             return False
 
+    @overload
+    def __getitem__(self, index: int) -> T: ...
+
+    @overload
+    def __getitem__(self, index: slice) -> Column[T]: ...
+
+    def __getitem__(self, index: int | slice) -> T | Column[T]:
+        if isinstance(index, int):
+            return self.get_value(index)
+
+        try:
+            return self._from_polars_lazy_frame(self.name, self._lazy_frame[index])
+        except ValueError:
+            return self._from_polars_series(self._series[index])
 
     def __iter__(self) -> Iterator[T]:
         return self._series.__iter__()
