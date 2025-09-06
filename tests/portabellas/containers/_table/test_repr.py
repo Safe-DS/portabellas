@@ -1,5 +1,4 @@
 import pytest
-from pytest import param
 
 from portabellas import Table
 
@@ -7,7 +6,7 @@ from portabellas import Table
 @pytest.mark.parametrize(
     ("table", "expected"),
     [
-        param(
+        pytest.param(
             Table({}),
             """
 
@@ -18,7 +17,7 @@ from portabellas import Table
             """.strip(),
             id="empty",
         ),
-        param(
+        pytest.param(
             Table({"col1": [], "col2": []}),
             """
 
@@ -32,7 +31,7 @@ from portabellas import Table
             """.strip(),
             id="no rows",
         ),
-        param(
+        pytest.param(
             Table({"col1": [1, 2], "col2": [3, 4]}),
             """
 
