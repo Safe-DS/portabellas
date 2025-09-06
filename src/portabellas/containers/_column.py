@@ -69,6 +69,13 @@ class Column[T]:
         self.__series_cache: pl.Series | None = pl.Series(name, data, strict=False)
         self._lazy_frame: pl.LazyFrame = self.__series_cache.to_frame().lazy()
 
+    def __contains__(self, value: object) -> bool:
+        try:
+            return self._series.__contains__(value)
+        except pl.InvalidOperationError:
+            # Happens if types are incompatible
+            return False
+
 
     def __iter__(self) -> Iterator[T]:
         return self._series.__iter__()
