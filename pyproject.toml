@@ -1,8 +1,13 @@
 [project]
 name = "portabellas"
 version = "0.1.0"
-description = "Add your description here"
+description = "An easy way to work with tabular data."
+authors = [
+    {name = "Lars Reimann", email = "mail@larsreimann.com"}
+]
+license = "MIT"
 readme = "docs/README.md"
+repository = "https://github.com/Safe-DS/portabellas"
 requires-python = ">=3.12,<3.14"
 dependencies = [
     "polars>=1.32.0",
