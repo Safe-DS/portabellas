@@ -20,6 +20,7 @@ dev = [
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
     "ruff>=0.12.7",
+    "syrupy>=4.9.1",
 ]
 docs = [
     "mkdocs>=1.6.1",
@@ -40,10 +41,14 @@ build-backend = "uv_build"
 
 [tool.mypy]
 strict = true
+disallow_any_generics = false
+disallow_untyped_decorators = false
+no_warn_return_any = true
 
 [tool.pytest.ini_options]
 addopts = [
     "--doctest-modules",
+    "--snapshot-warn-unused",
     "--strict-markers",
     "--tb=short", # short tracebacks
 ]
@@ -54,8 +59,13 @@ line-length = 120
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "ANN401",
+    "COM812", # Conflicts with formatter
     "D100",
     "D104",
+    "PLR09",
+    "PLR2004",
+    "SLF001", # We don't want to expose our entire API
     "TD002",
     "TD003",
 ]
@@ -63,6 +73,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "D103",
+    "FBT001",
     "INP001",
     "S101",
 ]
