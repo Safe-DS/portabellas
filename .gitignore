@@ -10,6 +10,11 @@ build/
 dist/
 out/
 
+# mkdocs outputs
+/docs/reference/portabellas/
+/docs/reference/SUMMARY.md
+/site/
+
 # Python binaries
 *.egg-info/
 __pycache__/
