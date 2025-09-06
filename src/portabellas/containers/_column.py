@@ -40,6 +40,26 @@ class Column[T]:
     """
 
     # ------------------------------------------------------------------------------------------------------------------
+    # Import
+    # ------------------------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def _from_polars_series(data: pl.Series) -> Column:
+        result = object.__new__(Column)
+        result._name = data.name
+        result.__series_cache = data
+        result._lazy_frame = data.to_frame().lazy()
+        return result
+
+    @staticmethod
+    def _from_polars_lazy_frame(name: str, data: pl.LazyFrame) -> Column:
+        result = object.__new__(Column)
+        result._name = name
+        result.__series_cache = None
+        result._lazy_frame = data.select(name)
+        return result
+
+    # ------------------------------------------------------------------------------------------------------------------
     # Dunder methods
     # ------------------------------------------------------------------------------------------------------------------
 
