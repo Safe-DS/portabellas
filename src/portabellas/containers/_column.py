@@ -124,3 +124,82 @@ class Column[T]:
         """Create interactive plots of this column."""
         # TODO: examples # noqa: FIX002
         return ColumnPlotter(self)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Value operations
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def get_value(self, index: int) -> T:
+        """
+        Return the column value at the specified index. This is equivalent to the `[]` operator (indexed access).
+
+        Nonnegative indices are counted from the beginning (starting at 0), negative indices from the end (starting at
+        -1).
+
+        Parameters
+        ----------
+        index:
+            The index of the requested value.
+
+        Returns
+        -------
+        value:
+            The value at the index.
+
+        Raises
+        ------
+        IndexOutOfBoundsError
+            If the index is out of bounds.
+
+        Examples
+        --------
+        >>> from portabellas import Column
+        >>> column = Column("a", [1, 2, 3])
+        >>> column.get_value(0)
+        1
+
+        >>> column[0]
+        1
+
+        >>> column.get_value(-1)
+        3
+
+        >>> column[-1]
+        3
+        """
+        check_indices(self, index)
+
+        # Lazy containers do not allow indexed accesses
+        return self._series[index]
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Export
+    # ------------------------------------------------------------------------------------------------------------------
+
+    def to_table(self) -> Table:
+        """
+        Create a table that contains only this column.
+
+        Returns
+        -------
+        table:
+            The table with this column.
+
+        Examples
+        --------
+        >>> from portabellas import Column
+        >>> column = Column("a", [1, 2, 3])
+        >>> column.to_table()
+        +-----+
+        |   a |
+        | --- |
+        | i64 |
+        +=====+
+        |   1 |
+        |   2 |
+        |   3 |
+        +-----+
+        """
+        from ._table import Table  # noqa: PLC0415
+
+        return Table._from_polars_lazy_frame(self._lazy_frame)
