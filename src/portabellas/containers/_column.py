@@ -80,6 +80,25 @@ class Column[T]:
         'a'
         """
         return self._name
+
+    @property
+    def row_count(self) -> int:
+        """
+        The number of rows.
+
+        **Notes:**
+
+        - This operation loads the full data into memory, which can be expensive.
+
+        Examples
+        --------
+        >>> from portabellas import Column
+        >>> column = Column("a", [1, 2, 3])
+        >>> column.row_count
+        3
+        """
+        return self._series.len()
+
     @property
     def plot(self) -> ColumnPlotter:
         """Create interactive plots of this column."""
