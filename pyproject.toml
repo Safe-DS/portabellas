@@ -56,9 +56,12 @@ line-length = 120
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "ANN401",
     "COM812", # Conflicts with formatter
     "D100",
     "D104",
+    "PLR2004",
+    "SLF001", # We don't want to expose our entire API
     "TD002",
     "TD003",
 ]
