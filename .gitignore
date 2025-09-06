@@ -15,6 +15,9 @@ out/
 /docs/reference/SUMMARY.md
 /site/
 
+# Node.js
+node_modules/
+
 # Python binaries
 *.egg-info/
 __pycache__/
