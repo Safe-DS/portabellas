@@ -3,11 +3,13 @@ from __future__ import annotations
 from collections.abc import Iterator, Sequence
 from typing import TYPE_CHECKING, overload
 
-from portabellas._utils import safely_collect_lazy_frame
+from portabellas._utils import safely_collect_lazy_frame, safely_collect_lazy_frame_schema
 from portabellas._validation import check_indices
+from portabellas.typing._polars_data_type import PolarsDataType
 
 if TYPE_CHECKING:
     from portabellas import Table
+    from portabellas.typing import DataType
 
 import polars as pl
 
@@ -24,6 +26,8 @@ class Column[T](Sequence[T]):
         The name of the column.
     data:
         The data of the column.
+    type:
+        The type of the column. If `None` (default), the type is inferred from the data.
 
     Examples
     --------
@@ -38,6 +42,18 @@ class Column[T](Sequence[T]):
     |   2 |
     |   3 |
     +-----+
+
+    >>> from portabellas.typing import DataType
+    >>> Column("a", [1, 2, 3], type=DataType.String())
+    +-----+
+    | a   |
+    | --- |
+    | str |
+    +=====+
+    | 1   |
+    | 2   |
+    | 3   |
+    +-----+
     """
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -50,6 +66,7 @@ class Column[T](Sequence[T]):
         result._name = data.name
         result.__series_cache = data
         result._lazy_frame = data.to_frame().lazy()
+        result.__type_cache = PolarsDataType(data.dtype)
         return result
 
     @staticmethod
@@ -58,17 +75,28 @@ class Column[T](Sequence[T]):
         result._name = name
         result.__series_cache = None
         result._lazy_frame = data.select(name)
+        result.__type_cache = None
         return result
 
     # ------------------------------------------------------------------------------------------------------------------
     # Dunder methods
     # ------------------------------------------------------------------------------------------------------------------
 
-    def __init__(self, name: str, data: Sequence[T]) -> None:
+    def __init__(
+        self,
+        name: str,
+        data: Sequence[T],
+        *,
+        type: DataType | None = None,  # noqa: A002
+    ) -> None:
+        # Preprocessing
+        dtype = None if type is None else type._polars_data_type
+
         # Fields
         self._name: str = name
-        self.__series_cache: pl.Series | None = pl.Series(name, data, strict=False)
+        self.__series_cache: pl.Series | None = pl.Series(name, data, dtype=dtype, strict=False)
         self._lazy_frame: pl.LazyFrame = self.__series_cache.to_frame().lazy()
+        self.__type_cache: DataType | None = PolarsDataType(self.__series_cache.dtype)
 
     def __contains__(self, value: object) -> bool:
         try:
@@ -154,6 +182,24 @@ class Column[T](Sequence[T]):
         """Create interactive plots of this column."""
         # TODO: examples # noqa: FIX002
         return ColumnPlotter(self)
+
+    @property
+    def type(self) -> DataType:
+        """
+        The type of the column.
+
+        Examples
+        --------
+        >>> from portabellas import Column
+        >>> column = Column("a", [1, 2, 3])
+        >>> column.type
+        i64
+        """
+        if self.__type_cache is None:
+            schema = safely_collect_lazy_frame_schema(self._lazy_frame)
+            self.__type_cache = PolarsDataType(schema.dtypes()[0])
+
+        return self.__type_cache
 
     # ------------------------------------------------------------------------------------------------------------------
     # Value operations
