@@ -1,4 +1,4 @@
-from ._column_type import ColumnType
+from ._data_type import DataType
 from ._schema import Schema
 
-__all__ = ["ColumnType", "Schema"]
+__all__ = ["DataType", "Schema"]
