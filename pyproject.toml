@@ -11,6 +11,7 @@ repository = "https://github.com/Safe-DS/portabellas"
 requires-python = ">=3.12,<3.14"
 dependencies = [
     "polars>=1.32.0",
+    "tzdata>=2025.2",
 ]
 
 [dependency-groups]
